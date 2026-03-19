@@ -104,28 +104,26 @@
 
     <!-- Firebase SDK: Add this before your custom script -->
     <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+        // Step 1: Import Firebase SDK modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
+        // Step 2: Firebase config (replace with your actual Firebase configuration)
+        const firebaseConfig = {
     apiKey: "AIzaSyAVd3W7MFt6Ddq79WwxkaJ_lGTW9Hig08c",
     authDomain: "quick-clipboard.firebaseapp.com",
+    databaseURL: "https://quick-clipboard-default-rtdb.firebaseio.com",
     projectId: "quick-clipboard",
     storageBucket: "quick-clipboard.firebasestorage.app",
     messagingSenderId: "292937997761",
     appId: "1:292937997761:web:ae94b22dc263545bf86340"
   };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
+        // Step 3: Initialize Firebase with the configuration
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
-    <!-- Custom Script for saving and retrieving data -->
-    <script>
-        // Save the clipboard text to Firebase
+        // Step 4: Save the clipboard text to Firebase
         function saveText() {
             const text = document.getElementById("text").value;
             if (!text) {
@@ -133,26 +131,25 @@
                 return;
             }
 
-            // Debugging log
-            console.log("Saving text:", text);
-
+            // Generate a unique code (4 digit random number)
             const code = Math.floor(1000 + Math.random() * 9000).toString();
 
-            set(ref(database, 'clips/' + code), {
-                text: text
+            // Save the text to Firebase Realtime Database
+            const dbRef = ref(database, 'clips/' + code);  // Specify the location where the data should be saved
+
+            set(dbRef, {
+                text: text  // Store the text under this unique code
             })
             .then(() => {
-                console.log("Text saved successfully with code:", code);
                 showStatus(`Your code is: ${code}. Share this code to retrieve the text.`, "success");
-                document.getElementById("text").value = "";
+                document.getElementById("text").value = "";  // Clear textarea
             })
             .catch((error) => {
-                console.log("Error saving text:", error);
                 showStatus(`Error saving text: ${error.message}`, "error");
             });
         }
 
-        // Retrieve the clipboard text using the code
+        // Step 5: Retrieve the clipboard text using the code
         function getText() {
             const code = document.getElementById("clipId").value;
             if (!code) {
@@ -160,27 +157,22 @@
                 return;
             }
 
-            console.log("Retrieving text for code:", code);
-
-            const clipRef = ref(database, 'clips/' + code);
+            const clipRef = ref(database, 'clips/' + code);  // Reference to retrieve the clip
             get(clipRef)
                 .then((snapshot) => {
                     if (snapshot.exists()) {
                         const text = snapshot.val().text;
-                        console.log("Retrieved text:", text);
                         showStatus(`Retrieved Text: ${text}`, "success");
                     } else {
-                        console.log("Invalid code");
                         showStatus("Invalid or expired code!", "error");
                     }
                 })
                 .catch((error) => {
-                    console.log("Error retrieving text:", error);
                     showStatus(`Error retrieving text: ${error.message}`, "error");
                 });
         }
 
-        // Show status message
+        // Step 6: Show status message
         function showStatus(message, type) {
             const statusElement = document.getElementById("status");
             statusElement.textContent = message;
