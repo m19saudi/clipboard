@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickClip - Temporary Clipboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin: 10px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        #status {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 16px;
+            color: #333;
+        }
+        input {
+            padding: 10px;
+            width: 200px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>QuickClip - Temporary Clipboard</h2>
+
+    <textarea id="text" placeholder="Type or paste text here..."></textarea><br><br>
+    <button class="button" onclick="saveText()">Create Code</button>
+
+    <h3>Retrieve Text</h3>
+    <input type="text" id="clipId" placeholder="Enter code here">
+    <button class="button" onclick="getText()">Get Text</button>
+
+    <div id="status"></div>
+
+    <script>
+        // Function to save the clipboard text
+        function saveText() {
+            const text = document.getElementById("text").value;
+            if (!text) {
+                document.getElementById("status").textContent = "Please enter some text first!";
+                return;
+            }
+
+            // Generate a unique code (4 digit random number)
+            const code = Math.floor(1000 + Math.random() * 9000).toString();
+            
+            // Save to localStorage
+            localStorage.setItem(code, text);
+
+            // Display the code to the user
+            document.getElementById("status").textContent = `Your code is: ${code}. Share this code to retrieve the text.`;
+
+            // Clear the textarea
+            document.getElementById("text").value = "";
+        }
+
+        // Function to retrieve the clipboard text using the code
+        function getText() {
+            const code = document.getElementById("clipId").value;
+
+            if (!code) {
+                document.getElementById("status").textContent = "Please enter a code.";
+                return;
+            }
+
+            // Retrieve from localStorage
+            const storedText = localStorage.getItem(code);
+
+            if (storedText) {
+                document.getElementById("status").textContent = `Retrieved Text: ${storedText}`;
+            } else {
+                document.getElementById("status").textContent = "Invalid or expired code!";
+            }
+        }
+    </script>
+
+</body>
+</html>
