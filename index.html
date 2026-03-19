@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuickClip - Secure Clipboard</title>
-
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -134,20 +133,23 @@
                 return;
             }
 
-            // Generate a unique code (4 digit random number)
+            // Debugging log
+            console.log("Saving text:", text);
+
             const code = Math.floor(1000 + Math.random() * 9000).toString();
 
-            // Save the text to Firebase Realtime Database
             set(ref(database, 'clips/' + code), {
                 text: text
             })
-                .then(() => {
-                    showStatus(`Your code is: ${code}. Share this code to retrieve the text.`, "success");
-                    document.getElementById("text").value = ""; // Clear textarea
-                })
-                .catch((error) => {
-                    showStatus(`Error saving text: ${error.message}`, "error");
-                });
+            .then(() => {
+                console.log("Text saved successfully with code:", code);
+                showStatus(`Your code is: ${code}. Share this code to retrieve the text.`, "success");
+                document.getElementById("text").value = "";
+            })
+            .catch((error) => {
+                console.log("Error saving text:", error);
+                showStatus(`Error saving text: ${error.message}`, "error");
+            });
         }
 
         // Retrieve the clipboard text using the code
@@ -158,18 +160,22 @@
                 return;
             }
 
-            // Retrieve the text from Firebase Realtime Database
+            console.log("Retrieving text for code:", code);
+
             const clipRef = ref(database, 'clips/' + code);
             get(clipRef)
                 .then((snapshot) => {
                     if (snapshot.exists()) {
                         const text = snapshot.val().text;
+                        console.log("Retrieved text:", text);
                         showStatus(`Retrieved Text: ${text}`, "success");
                     } else {
+                        console.log("Invalid code");
                         showStatus("Invalid or expired code!", "error");
                     }
                 })
                 .catch((error) => {
+                    console.log("Error retrieving text:", error);
                     showStatus(`Error retrieving text: ${error.message}`, "error");
                 });
         }
