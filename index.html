@@ -8,44 +8,46 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script src="config.js"></script> 
+    
+    <script>
+        /**
+         * SECURE PLACEHOLDER
+         * Vercel will inject your real keys into window.FIREBASE_CONFIG 
+         * during the build process using the 'sed' command.
+         */
+        window.FIREBASE_CONFIG = window.FIREBASE_CONFIG || {
+            apiKey: "PLACEHOLDER",
+            authDomain: "PLACEHOLDER",
+            databaseURL: "PLACEHOLDER",
+            projectId: "PLACEHOLDER",
+            storageBucket: "PLACEHOLDER",
+            messagingSenderId: "PLACEHOLDER",
+            appId: "PLACEHOLDER"
+        };
+    </script> 
     
     <style>
         :root { --primary: #4CAF50; --secondary: #2196F3; --bg: #f4f7f6; --text: #333; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        
         .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
         h1 { text-align: center; color: var(--primary); margin: 0 0 20px 0; font-size: 28px; letter-spacing: -1px; }
-
-        /* Main Content Area */
         textarea { width: 100%; height: 140px; border: 1px solid #eee; border-radius: 12px; padding: 15px; font-size: 16px; resize: none; box-sizing: border-box; background: #fafafa; transition: 0.3s; }
         textarea:focus { border-color: var(--primary); background: #fff; outline: none; }
-
-        /* Settings Row */
         .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
         .input-box { display: flex; flex-direction: column; }
         label { font-size: 11px; text-transform: uppercase; color: #999; margin-bottom: 5px; font-weight: bold; letter-spacing: 0.5px; }
         input { padding: 10px; border: 1px solid #eee; border-radius: 8px; font-size: 14px; font-weight: 600; }
-        
         .pass-container { position: relative; display: flex; align-items: center; }
         .pass-container input { width: 100%; }
         .toggle-btn { position: absolute; right: 10px; font-size: 10px; color: var(--secondary); cursor: pointer; text-transform: uppercase; font-weight: bold; }
-
-        /* Buttons */
         .btn { border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; font-size: 14px; }
         .btn-green { background: var(--primary); color: white; margin-bottom: 20px; }
         .btn-blue { background: var(--secondary); color: white; }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        /* Divider */
         .divider { display: flex; align-items: center; margin: 25px 0; color: #ccc; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
         .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #eee; }
         .divider span { padding: 0 10px; }
-
-        /* Join Section */
         .join-input { text-align: center; font-size: 20px; letter-spacing: 4px; border: 1px dashed #ccc; margin-bottom: 10px; }
-
-        /* Footer Info */
         #qrcode { margin: 20px auto; display: flex; justify-content: center; }
         .status { text-align: center; font-size: 12px; color: #aaa; margin-top: 15px; }
     </style>
@@ -54,7 +56,6 @@
 
 <div class="card">
     <h1>QuickClip</h1>
-    
     <textarea id="box" placeholder="Start typing to sync..."></textarea>
 
     <div class="settings-grid">
@@ -72,12 +73,9 @@
     </div>
     
     <button class="btn btn-green" onclick="applySettings()">Update Room Access</button>
-
     <div class="divider"><span>OR JOIN ANOTHER</span></div>
-
     <input type="text" id="clipId" class="join-input btn" placeholder="----" maxlength="4">
     <button class="btn btn-blue" onclick="joinOtherRoom()">Get Content</button>
-
     <div id="qrcode"></div>
     <div class="status" id="stat">Connecting...</div>
 </div>
@@ -90,12 +88,15 @@
     const joinInput = document.getElementById('clipId');
     let db, currentRef = null;
 
-    if (typeof firebaseConfig !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
+    // Use window.FIREBASE_CONFIG which Vercel will have populated
+    if (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey !== "PLACEHOLDER") {
+        firebase.initializeApp(window.FIREBASE_CONFIG);
         db = firebase.database();
         const autoId = Math.floor(1000 + Math.random() * 9000);
         myRoomIdInput.value = autoId;
         connectToRoom(autoId, myPassInput.value);
+    } else {
+        stat.innerText = "Config missing. Check Vercel settings.";
     }
 
     function togglePass() {
@@ -110,6 +111,7 @@
     }
 
     function connectToRoom(id, pass) {
+        if (!db) return;
         if (currentRef) currentRef.off();
         const path = 'clips/' + id + '/' + pass;
         currentRef = db.ref(path);
