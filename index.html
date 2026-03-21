@@ -46,25 +46,31 @@
         window.location.hash = id;
         const ref = db.ref('clips/' + id);
         
-        // Listen for changes
         ref.on('value', (snap) => {
             const data = snap.val();
             
-            // If the room has text, update the box (if it's different)
             if (data && data.text !== undefined) {
+                // If there is text in the cloud, show it
                 if (data.text !== box.value) {
                     box.value = data.text;
                 }
-            } else if (!data && box.value !== "") {
-                // If data was deleted remotely, clear the box locally
-                box.value = "";
+                stat.innerText = "Synced: Room " + id;
+            } else {
+                // If the room is new/empty, just show the room ID
+                stat.innerText = "Connected: Room " + id + " (Empty)";
             }
-            
-            // Always keep the status as "Synced" once connected
-            stat.innerText = "Synced: Room " + id;
-            stat.style.color = "#4CAF50"; 
         });
 
+        box.oninput = () => {
+            stat.innerText = "Saving...";
+            ref.set({ 
+                text: box.value, 
+                time: Date.now() // This 'time' is what makes the rules happy!
+            }).then(() => {
+                stat.innerText = "Synced: Room " + id;
+            });
+        };
+    }
         // Save on type
         box.oninput = () => {
             stat.innerText = "Saving...";
