@@ -3,35 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickClip - Secure Sync</title>
+    <title>QuickClip - Minimal Sync</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAwFBMVEX////Nzc2jo6M7OzupqaleXl4mJiY3NjMuLScMDAwVFRUwMDCJiYlgYFaUk3N8e1cTEw8aGhpLS0tzc3Nta1iNi29/f3+amHjv6XrTznYkIxppaWnNyIDq5H8/Pz+lon3/+HpAQED48XjJxXGsp11SUlJ4dluopWf17nq4tXbl3m1gXS3e12ptajSyrVUWFQoAAABGRCGOikPRy2MdHA2alUkqKBRSTye9t1pbWCs0Mhh4dDm6tFitqne3t7ciIiIQWpwkAAABJklEQVR4Ab3Tg5rDQBSG4bRBbfvfurFR3v9d7Zlaa7wPoi+e4Ugs/oYYdxDn3xDnmJggSjxJJFPp/YqUTkmZ/YoosGtk+UwuzxSKpXKFlEvFai1Pchk+S0Fd4htNptVO8Z1KpcOn2t1ekzT6Un0f9AdgmrlSKl0qpVOlXA/M4OU2GI7GhQmZzkbDpwGG89aCtJpDPA9YwgBvBgc/CGQFUDX9ncDA0LTsNwJnCNkFoNmQMZTvA9s0TU/2D4EVmKZ2GwwNQB6eAwVwhzdBGIHISwArCkJAcb4WDFOArM79YxAA5vAmgFc0zTUiUz4Eprl6eM05ziz9g0/9YbByPgjIvweN+VPHYZ+VMtXNU9WMlKVgy6cz5acyaX7Lkc7uTSLHCPU30fR+BQ0Va3qn48k5AAAAAElFTkSuQmCC">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="config.js"></script> 
     
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        h1 { color: #4CAF50; margin-top: 0; }
+        :root { --primary: #4CAF50; --secondary: #2196F3; --bg: #f4f7f6; --text: #333; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         
-        /* Inputs & Buttons */
-        textarea { width: 100%; height: 120px; border: 2px solid #ddd; border-radius: 10px; padding: 10px; font-size: 16px; resize: none; box-sizing: border-box; transition: 0.3s; margin-bottom: 10px; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
-        input[type="text"], input[type="password"] { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
+        h1 { text-align: center; color: var(--primary); margin: 0 0 20px 0; font-size: 28px; letter-spacing: -1px; }
+
+        /* Main Content Area */
+        textarea { width: 100%; height: 140px; border: 1px solid #eee; border-radius: 12px; padding: 15px; font-size: 16px; resize: none; box-sizing: border-box; background: #fafafa; transition: 0.3s; }
+        textarea:focus { border-color: var(--primary); background: #fff; outline: none; }
+
+        /* Settings Row */
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
+        .input-box { display: flex; flex-direction: column; }
+        label { font-size: 11px; text-transform: uppercase; color: #999; margin-bottom: 5px; font-weight: bold; letter-spacing: 0.5px; }
+        input { padding: 10px; border: 1px solid #eee; border-radius: 8px; font-size: 14px; font-weight: 600; }
         
-        .btn { background: #4CAF50; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn:hover { opacity: 0.9; }
-        .btn-blue { background-color: #2196F3; margin-top: 10px; }
+        .pass-container { position: relative; display: flex; align-items: center; }
+        .pass-container input { width: 100%; }
+        .toggle-btn { position: absolute; right: 10px; font-size: 10px; color: var(--secondary); cursor: pointer; text-transform: uppercase; font-weight: bold; }
 
-        /* Divider from your image */
-        .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #888; font-size: 12px; font-weight: bold; }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #ddd; }
-        .divider:not(:empty)::before { margin-right: .5em; }
-        .divider:not(:empty)::after { margin-left: .5em; }
+        /* Buttons */
+        .btn { border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; font-size: 14px; }
+        .btn-green { background: var(--primary); color: white; margin-bottom: 20px; }
+        .btn-blue { background: var(--secondary); color: white; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        #qrcode { margin-top: 20px; display: flex; justify-content: center; }
-        .status { font-size: 13px; color: #888; margin-top: 15px; font-weight: bold; padding: 8px; border-radius: 5px; background: #f9f9f9; }
-        label { display: block; text-align: left; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold; }
+        /* Divider */
+        .divider { display: flex; align-items: center; margin: 25px 0; color: #ccc; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #eee; }
+        .divider span { padding: 0 10px; }
+
+        /* Join Section */
+        .join-input { text-align: center; font-size: 20px; letter-spacing: 4px; border: 1px dashed #ccc; margin-bottom: 10px; }
+
+        /* Footer Info */
+        #qrcode { margin: 20px auto; display: flex; justify-content: center; }
+        .status { text-align: center; font-size: 12px; color: #aaa; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -39,29 +55,31 @@
 <div class="card">
     <h1>QuickClip</h1>
     
-    <label>Your Room Content</label>
-    <textarea id="box" placeholder="Type here to sync..."></textarea>
+    <textarea id="box" placeholder="Start typing to sync..."></textarea>
 
-    <div class="input-group">
-        <div style="flex:1">
+    <div class="settings-grid">
+        <div class="input-box">
             <label>Room ID</label>
-            <input type="text" id="myRoomId" readonly>
+            <input type="text" id="myRoomId" readonly style="background: #fdfdfd; color: #555;">
         </div>
-        <div style="flex:1">
-            <label>Set Password</label>
-            <input type="password" id="myPass" placeholder="Secret" value="1234">
+        <div class="input-box">
+            <label>Password</label>
+            <div class="pass-container">
+                <input type="password" id="myPass" value="1234">
+                <span class="toggle-btn" onclick="togglePass()">Show</span>
+            </div>
         </div>
     </div>
     
-    <button class="btn" onclick="applySettings()">Update/Lock Room</button>
+    <button class="btn btn-green" onclick="applySettings()">Update Room Access</button>
 
-    <div class="divider"><span>OR RETRIEVE</span></div>
+    <div class="divider"><span>OR JOIN ANOTHER</span></div>
 
-    <input type="text" id="clipId" placeholder="Enter 4-digit code" maxlength="4" style="width: 100%; margin-bottom: 10px; text-align: center; font-size: 18px; letter-spacing: 2px;">
-    <button class="btn btn-blue" id="getBtn" onclick="joinOtherRoom()">Get Content</button>
+    <input type="text" id="clipId" class="join-input btn" placeholder="----" maxlength="4">
+    <button class="btn btn-blue" onclick="joinOtherRoom()">Get Content</button>
 
     <div id="qrcode"></div>
-    <div class="status" id="stat">Initializing...</div>
+    <div class="status" id="stat">Connecting...</div>
 </div>
 
 <script>
@@ -70,30 +88,29 @@
     const myRoomIdInput = document.getElementById('myRoomId');
     const myPassInput = document.getElementById('myPass');
     const joinInput = document.getElementById('clipId');
-    
-    let db;
-    let currentRef = null;
+    let db, currentRef = null;
 
-    // 1. Initialize Firebase
     if (typeof firebaseConfig !== 'undefined') {
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         db = firebase.database();
-        
-        // AUTO-GENERATE Room ID on load
         const autoId = Math.floor(1000 + Math.random() * 9000);
         myRoomIdInput.value = autoId;
-        
-        // Connect to the auto-generated room immediately
         connectToRoom(autoId, myPassInput.value);
-    } else {
-        stat.innerText = "Config missing!";
+    }
+
+    function togglePass() {
+        const btn = document.querySelector('.toggle-btn');
+        if (myPassInput.type === "password") {
+            myPassInput.type = "text";
+            btn.innerText = "Hide";
+        } else {
+            myPassInput.type = "password";
+            btn.innerText = "Show";
+        }
     }
 
     function connectToRoom(id, pass) {
-        // Stop listening to previous room if exists
         if (currentRef) currentRef.off();
-
-        stat.innerText = "Connecting to " + id + "...";
         const path = 'clips/' + id + '/' + pass;
         currentRef = db.ref(path);
 
@@ -101,38 +118,29 @@
             const data = snap.val();
             if (data && data.text !== undefined) {
                 if (data.text !== box.value) box.value = data.text;
-                stat.innerText = "Synced: Room " + id;
-                stat.style.color = "#4CAF50";
+                stat.innerText = "Connected to Room " + id;
             } else {
-                stat.innerText = "Active: Room " + id + " (Empty)";
+                stat.innerText = "Room " + id + " is empty";
             }
         });
 
         box.oninput = () => {
-            stat.innerText = "Syncing...";
             currentRef.set({ text: box.value, time: Date.now() });
         };
 
-        // Update QR
         const qrContainer = document.getElementById('qrcode');
         qrContainer.innerHTML = "";
-        new QRCode(qrContainer, { text: id.toString(), width: 128, height: 128 });
+        new QRCode(qrContainer, { text: id.toString(), width: 100, height: 100 });
     }
 
-    // Function for when you change your own room password
     function applySettings() {
         connectToRoom(myRoomIdInput.value, myPassInput.value);
-        alert("Room " + myRoomIdInput.value + " updated with new password!");
     }
 
-    // Function to join someone else's room
     function joinOtherRoom() {
         const targetId = joinInput.value;
-        if (targetId.length < 4) {
-            alert("Please enter a 4-digit code");
-            return;
-        }
-        const pass = prompt("Enter the password for Room " + targetId + ":");
+        if (targetId.length < 4) return alert("Enter 4 digits");
+        const pass = prompt("Enter Password for Room " + targetId + ":");
         if (pass) {
             myRoomIdInput.value = targetId;
             myPassInput.value = pass;
