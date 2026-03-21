@@ -30,6 +30,18 @@
 </div>
 
 <script>
+    // Double-check if the config loaded
+    if (typeof firebaseConfig !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        console.log("Firebase initialized successfully!");
+        
+        // ... the rest of your connectToRoom logic ...
+    } else {
+        console.error("config.js failed to load. Check the file name and path!");
+        document.getElementById('stat').innerText = "Error: Config file not found.";
+    }
+    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const box = document.getElementById('box');
