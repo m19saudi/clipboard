@@ -7,7 +7,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script src="config.js"></script> <style>
+    <script src="config.js"></script> 
+    
+    <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; }
         h1 { color: #4CAF50; margin-bottom: 0.5rem; }
@@ -15,7 +17,7 @@
         textarea:focus { border-color: #4CAF50; outline: none; }
         .btn { background: #4CAF50; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; }
         #qrcode { margin-top: 20px; display: flex; justify-content: center; }
-        .status { font-size: 12px; color: #888; margin-top: 10px; }
+        .status { font-size: 12px; color: #888; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -30,78 +32,84 @@
 </div>
 
 <script>
-    // Double-check if the config loaded
-    if (typeof firebaseConfig !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        console.log("Firebase initialized successfully!");
-        
-        // ... the rest of your connectToRoom logic ...
-    } else {
-        console.error("config.js failed to load. Check the file name and path!");
-        document.getElementById('stat').innerText = "Error: Config file not found.";
-    }
-    
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
     const box = document.getElementById('box');
     const stat = document.getElementById('stat');
-    
-    // Auto-load room from URL hash
-    let roomId = window.location.hash.substring(1);
-    
-    if (roomId) {
-        connectToRoom(roomId);
-    }
+    let db;
 
-    function connectToRoom(id) {
-    window.location.hash = id;
-    const ref = db.ref('clips/' + id);
-
-    // 1. Listen for changes from the database
-    ref.on('value', (snap) => {
-        const data = snap.val();
-        if (data && data.text !== undefined) {
-            // Update the box only if the text is different
-            if (data.text !== box.value) {
-                box.value = data.text;
-            }
-            stat.innerText = "Synced: Room " + id;
-            stat.style.color = "#4CAF50";
-        } else {
-            stat.innerText = "Connected: Room " + id + " (Empty)";
-            stat.style.color = "#888";
+    // 1. Initialize Firebase Safely
+    if (typeof firebaseConfig !== 'undefined') {
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-    });
-
-    // 2. Save to database when typing
-    box.oninput = () => {
-        stat.innerText = "Saving...";
-        stat.style.color = "#ff9800";
+        db = firebase.database();
+        console.log("Firebase initialized successfully!");
         
-        ref.set({ 
-            text: box.value, 
-            time: Date.now() 
-        }).then(() => {
-            stat.innerText = "Synced: Room " + id;
-            stat.style.color = "#4CAF50";
-        }).catch((err) => {
-            stat.innerText = "Security Error!";
-            console.error("Firebase Error:", err);
-        });
-    };
-
-    // 3. Update the QR Code
-    const qrContainer = document.getElementById('qrcode');
-    if (qrContainer) {
-        qrContainer.innerHTML = "";
-        new QRCode(qrContainer, window.location.href);
+        // Auto-load room from URL hash if it exists
+        let roomId = window.location.hash.substring(1);
+        if (roomId) {
+            const pass = prompt("Enter the Room Password:");
+            if (pass) {
+                connectToRoom(roomId, pass);
+            } else {
+                stat.innerText = "Access Denied: No Password Provided";
+            }
+        }
+    } else {
+        console.error("config.js failed to load!");
+        stat.innerText = "Error: Config file not found.";
     }
-} // This is the final closing bracket for the function
+
+    function connectToRoom(id, pass) {
+        window.location.hash = id;
+        // The path includes the password for security
+        const ref = db.ref('clips/' + id + '/' + pass);
+
+        // Listen for changes from the database
+        ref.on('value', (snap) => {
+            const data = snap.val();
+            if (data && data.text !== undefined) {
+                if (data.text !== box.value) {
+                    box.value = data.text;
+                }
+                stat.innerText = "Synced: Room " + id;
+                stat.style.color = "#4CAF50";
+            } else {
+                stat.innerText = "Connected: Room " + id + " (Empty)";
+                stat.style.color = "#888";
+            }
+        });
+
+        // Save to database when typing
+        box.oninput = () => {
+            stat.innerText = "Saving...";
+            stat.style.color = "#ff9800";
+            
+            ref.set({ 
+                text: box.value, 
+                time: Date.now() 
+            }).then(() => {
+                stat.innerText = "Synced: Room " + id;
+                stat.style.color = "#4CAF50";
+            }).catch((err) => {
+                stat.innerText = "Security Error! Check rules/password.";
+                console.error("Firebase Error:", err);
+            });
+        };
+
+        // Update the QR Code
+        const qrContainer = document.getElementById('qrcode');
+        if (qrContainer) {
+            qrContainer.innerHTML = "";
+            new QRCode(qrContainer, window.location.href);
+        }
+    }
 
     function generateNew() {
         const newId = Math.floor(1000 + Math.random() * 9000);
-        connectToRoom(newId);
+        const newPass = prompt("Create a password for this new room:");
+        if (newPass) {
+            connectToRoom(newId, newPass);
+        }
     }
 </script>
 </body>
