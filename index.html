@@ -55,58 +55,49 @@
     }
 
     function connectToRoom(id) {
-        window.location.hash = id;
-        const ref = db.ref('clips/' + id);
-        
-        ref.on('value', (snap) => {
-            const data = snap.val();
-            
-            if (data && data.text !== undefined) {
-                // If there is text in the cloud, show it
-                if (data.text !== box.value) {
-                    box.value = data.text;
-                }
-                stat.innerText = "Synced: Room " + id;
-            } else {
-                // If the room is new/empty, just show the room ID
-                stat.innerText = "Connected: Room " + id + " (Empty)";
+    window.location.hash = id;
+    const ref = db.ref('clips/' + id);
+
+    // 1. Listen for changes from the database
+    ref.on('value', (snap) => {
+        const data = snap.val();
+        if (data && data.text !== undefined) {
+            // Update the box only if the text is different
+            if (data.text !== box.value) {
+                box.value = data.text;
             }
-        });
-
-        box.oninput = () => {
-            stat.innerText = "Saving...";
-            ref.set({ 
-                text: box.value, 
-                time: Date.now() // This 'time' is what makes the rules happy!
-            }).then(() => {
-                stat.innerText = "Synced: Room " + id;
-            });
-        };
-    }
-        // Save on type
-        box.oninput = () => {
-            stat.innerText = "Saving...";
-            stat.style.color = "#ff9800";
-            
-            ref.set({ 
-                text: box.value, 
-                time: Date.now() 
-            }).then(() => {
-                stat.innerText = "Synced: Room " + id;
-                stat.style.color = "#4CAF50";
-            }).catch((err) => {
-                stat.innerText = "Security Error!";
-                console.error(err);
-            });
-        };
-
-        // Show QR
-        const qrContainer = document.getElementById('qrcode');
-        if (qrContainer) {
-            qrContainer.innerHTML = "";
-            new QRCode(qrContainer, window.location.href);
+            stat.innerText = "Synced: Room " + id;
+            stat.style.color = "#4CAF50";
+        } else {
+            stat.innerText = "Connected: Room " + id + " (Empty)";
+            stat.style.color = "#888";
         }
+    });
+
+    // 2. Save to database when typing
+    box.oninput = () => {
+        stat.innerText = "Saving...";
+        stat.style.color = "#ff9800";
+        
+        ref.set({ 
+            text: box.value, 
+            time: Date.now() 
+        }).then(() => {
+            stat.innerText = "Synced: Room " + id;
+            stat.style.color = "#4CAF50";
+        }).catch((err) => {
+            stat.innerText = "Security Error!";
+            console.error("Firebase Error:", err);
+        });
+    };
+
+    // 3. Update the QR Code
+    const qrContainer = document.getElementById('qrcode');
+    if (qrContainer) {
+        qrContainer.innerHTML = "";
+        new QRCode(qrContainer, window.location.href);
     }
+} // This is the final closing bracket for the function
 
     function generateNew() {
         const newId = Math.floor(1000 + Math.random() * 9000);
