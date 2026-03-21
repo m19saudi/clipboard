@@ -5,182 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuickClip - Secure Clipboard</title>
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAwFBMVEX////Nzc2jo6M7OzupqaleXl4mJiY3NjMuLScMDAwVFRUwMDCJiYlgYFaUk3N8e1cTEw8aGhpLS0tzc3Nta1iNi29/f3+amHjv6XrTznYkIxppaWnNyIDq5H8/Pz+lon3/+HpAQED48XjJxXGsp11SUlJ4dluopWf17nq4tXbl3m1gXS3e12ptajSyrVUWFQoAAABGRCGOikPRy2MdHA2alUkqKBRSTye9t1pbWCs0Mhh4dDm6tFitqne3t7ciIiIQWpwkAAABJklEQVR4Ab3Tg5rDQBSG4bRBbfvfurFR3v9d7Zlaa7wPoi+e4Ugs/oYYdxDn3xDnmJggSjxJJFPp/YqUTkmZ/YoosGtk+UwuzxSKpXKFlEvFai1Pchk+S0Fd4htNptVO8Z1KpcOn2t1ekzT6Un0f9AdgmrlSKl0qpVOlXA/M4OU2GI7GhQmZzkbDpwGG89aCtJpDPA9YwgBvBgc/CGQFUDX9ncDA0LTsNwJnCNkFoNmQMZTvA9s0TU/2D4EVmKZ2GwwNQB6eAwVwhzdBGIHISwArCkJAcb4WDFOArM79YxAA5vAmgFc0zTUiUz4Eprl6eM05ziz9g0/9YbByPgjIvweN+VPHYZ+VMtXNU9WMlKVgy6cz5acyaX7Lkc7uTSLHCPU30fR+BQ0Va3qn48k5AAAAAElFTkSuQmCC">
-
+    
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f9f9f9;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .container {
-            background: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 500px;
-            width: 100%;
-        }
-        h1 {
-            color: #4CAF50;
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-        h2 {
-            font-size: 1.5rem;
-            color: #666;
-        }
-        textarea {
-            width: 100%;
-            height: 150px;
-            border: 2px solid #ccc;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 8px;
-            resize: none;
-            margin-bottom: 20px;
-            transition: border 0.3s ease;
-        }
-        textarea:focus {
-            border-color: #4CAF50;
-        }
-        .button {
-            padding: 12px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            width: 100%;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 2px solid #ccc;
-            margin-bottom: 20px;
-        }
-        input:focus {
-            border-color: #4CAF50;
-        }
-        .status {
-            font-size: 16px;
-            color: #333;
-            margin-top: 20px;
-        }
-        .status.success {
-            color: green;
-        }
-        .status.error {
-            color: red;
-        }
+        body { font-family: 'Arial', sans-serif; margin: 0; background: #f9f9f9; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background: #fff; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); padding: 30px; border-radius: 12px; max-width: 500px; width: 100%; box-sizing: border-box; }
+        h1 { color: #4CAF50; font-size: 1.8rem; margin-bottom: 10px; }
+        p.subtitle { color: #888; margin-bottom: 20px; font-size: 0.9rem; }
+        textarea { width: 100%; height: 180px; border: 2px solid #eee; padding: 12px; font-size: 16px; border-radius: 8px; resize: none; margin-bottom: 15px; transition: 0.3s; box-sizing: border-box; }
+        textarea:focus { border-color: #4CAF50; outline: none; background: #fff; }
+        .button { padding: 12px 20px; font-size: 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 8px; transition: 0.3s; width: 100%; font-weight: bold; }
+        .button:hover { background-color: #45a049; transform: translateY(-1px); }
+        .divider { margin: 25px 0; border-top: 1px solid #eee; position: relative; }
+        .divider span { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #fff; padding: 0 10px; color: #aaa; font-size: 0.8rem; }
+        input { width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: 2px solid #eee; margin-bottom: 15px; box-sizing: border-box; text-align: center; }
+        #qrcode { margin: 20px auto; display: flex; justify-content: center; }
+        .status { font-size: 14px; margin-top: 15px; padding: 10px; border-radius: 6px; display: none; }
+        .success { background: #e8f5e9; color: #2e7d32; display: block; }
+        .error { background: #ffebee; color: #c62828; display: block; }
+        #current-code-display { font-weight: bold; color: #4CAF50; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>QuickClip - Secure Clipboard</h1>
+<div class="container">
+    <h1>QuickClip</h1>
+    <p class="subtitle">Real-time secure clipboard</p>
 
-        <h2>Save Your Clipboard</h2>
-        <textarea id="text" placeholder="Type or paste your clipboard content here..."></textarea>
-        <button class="button" onclick="saveText()">Create Code</button>
+    <textarea id="text" placeholder="Type or paste content here..."></textarea>
+    <button class="button" id="saveBtn">Generate Cloud Link</button>
 
-        <h2>Retrieve Clipboard</h2>
-        <input type="text" id="clipId" placeholder="Enter code here" />
-        <button class="button" onclick="getText()">Get Text</button>
+    <div class="divider"><span>OR RETRIEVE</span></div>
 
-        <div id="status" class="status"></div>
-    </div>
+    <input type="text" id="clipId" placeholder="Enter 4-digit code" maxlength="4">
+    <button class="button" style="background-color: #2196F3;" id="getBtn">Get Content</button>
 
-    <!-- Firebase SDK: Add this before your custom script -->
-    <script type="module">
-        // Step 1: Import Firebase SDK modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+    <div id="status" class="status"></div>
+    <div id="qrcode"></div>
+</div>
 
-        // Step 2: Firebase config (replace with your actual Firebase configuration)
-        const firebaseConfig = {
-    apiKey: "AIzaSyAVd3W7MFt6Ddq79WwxkaJ_lGTW9Hig08c",
-    authDomain: "quick-clipboard.firebaseapp.com",
-    databaseURL: "https://quick-clipboard-default-rtdb.firebaseio.com",
-    projectId: "quick-clipboard",
-    storageBucket: "quick-clipboard.firebasestorage.app",
-    messagingSenderId: "292937997761",
-    appId: "1:292937997761:web:ae94b22dc263545bf86340"
-  };
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
-        // Step 3: Initialize Firebase with the configuration
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+<script>
+    // --- FIREBASE CONFIG ---
+    const firebaseConfig = {
+  apiKey: "AIzaSyDh8uvlYT1tCIoYiHeqOZ2lwYiOKbqv3aQ",
+  authDomain: "my-quick-clip2.firebaseapp.com",
+  projectId: "my-quick-clip2",
+  storageBucket: "my-quick-clip2.firebasestorage.app",
+  messagingSenderId: "499890221863",
+  appId: "1:499890221863:web:94d67c4a23ec2a1f4eef02"
+};
 
-        // Step 4: Save the clipboard text to Firebase
-        function saveText() {
-            const text = document.getElementById("text").value;
-            if (!text) {
-                showStatus("Please enter some text first!", "error");
-                return;
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    let currentRef = null;
+
+    // --- DOM ELEMENTS ---
+    const textInput = document.getElementById("text");
+    const clipInput = document.getElementById("clipId");
+    const statusDiv = document.getElementById("status");
+    const qrDiv = document.getElementById("qrcode");
+
+    // --- LOGIC ---
+
+    // Function to show status
+    function showStatus(msg, type) {
+        statusDiv.textContent = msg;
+        statusDiv.className = `status ${type}`;
+        setTimeout(() => { statusDiv.className = 'status'; }, 5000);
+    }
+
+    // Function to handle QR Code
+    function generateQR(code) {
+        qrDiv.innerHTML = "";
+        const url = `${window.location.origin}${window.location.pathname}#${code}`;
+        new QRCode(qrDiv, { text: url, width: 128, height: 128 });
+    }
+
+    // Enable Real-Time Listening
+    function startListening(code) {
+        if (currentRef) currentRef.off(); // Stop listening to old code
+        currentRef = database.ref('clips/' + code);
+        
+        currentRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.text !== textInput.value) {
+                textInput.value = data.text;
+                showStatus("Synchronized!", "success");
             }
+        });
+    }
 
-            // Generate a unique code (4 digit random number)
-            const code = Math.floor(1000 + Math.random() * 9000).toString();
+    // CREATE / SAVE
+    document.getElementById("saveBtn").onclick = function() {
+        const text = textInput.value;
+        if (!text) return showStatus("Enter text first!", "error");
 
-            // Save the text to Firebase Realtime Database
-            const dbRef = ref(database, 'clips/' + code);  // Specify the location where the data should be saved
+        const code = Math.floor(1000 + Math.random() * 9000).toString();
+        database.ref('clips/' + code).set({
+            text: text,
+            timestamp: Date.now()
+        }).then(() => {
+            window.location.hash = code;
+            showStatus(`Saved! Code: ${code}`, "success");
+            generateQR(code);
+            startListening(code);
+        });
+    };
 
-            set(dbRef, {
-                text: text  // Store the text under this unique code
-            })
-            .then(() => {
-                showStatus(`Your code is: ${code}. Share this code to retrieve the text.`, "success");
-                document.getElementById("text").value = "";  // Clear textarea
-            })
-            .catch((error) => {
-                showStatus(`Error saving text: ${error.message}`, "error");
+    // RETRIEVE
+    document.getElementById("getBtn").onclick = function() {
+        const code = clipInput.value;
+        if (!code) return showStatus("Enter a code!", "error");
+        
+        database.ref('clips/' + code).once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                textInput.value = snapshot.val().text;
+                window.location.hash = code;
+                generateQR(code);
+                startListening(code);
+                showStatus("Content Loaded!", "success");
+            } else {
+                showStatus("Code not found!", "error");
+            }
+        });
+    };
+
+    // HANDLE URL HASH (Unique Access Handle)
+    window.onload = function() {
+        const hash = window.location.hash.substring(1);
+        if (hash && hash.length === 4) {
+            clipInput.value = hash;
+            document.getElementById("getBtn").click();
+        }
+    };
+
+    // AUTO-SYNC as you type
+    textInput.oninput = function() {
+        const hash = window.location.hash.substring(1);
+        if (hash && hash.length === 4) {
+            database.ref('clips/' + hash).set({
+                text: textInput.value,
+                timestamp: Date.now()
             });
         }
-
-        // Step 5: Retrieve the clipboard text using the code
-        function getText() {
-            const code = document.getElementById("clipId").value;
-            if (!code) {
-                showStatus("Please enter a valid code.", "error");
-                return;
-            }
-
-            const clipRef = ref(database, 'clips/' + code);  // Reference to retrieve the clip
-            get(clipRef)
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        const text = snapshot.val().text;
-                        showStatus(`Retrieved Text: ${text}`, "success");
-                    } else {
-                        showStatus("Invalid or expired code!", "error");
-                    }
-                })
-                .catch((error) => {
-                    showStatus(`Error retrieving text: ${error.message}`, "error");
-                });
-        }
-
-        // Step 6: Show status message
-        function showStatus(message, type) {
-            const statusElement = document.getElementById("status");
-            statusElement.textContent = message;
-            statusElement.className = `status ${type}`;
-        }
-    </script>
+    };
+</script>
 
 </body>
 </html>
