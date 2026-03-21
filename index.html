@@ -4,112 +4,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuickClip - Secure Sync</title>
-    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAwFBMVEX////Nzc2jo6M7OzupqaleXl4mJiY3NjMuLScMDAwVFRUwMDCJiYlgYFaUk3N8e1cTEw8aGhpLS0tzc3Nta1iNi29/f3+amHjv6XrTznYkIxppaWnNyIDq5H8/Pz+lon3/+HpAQED48XjJxXGsp11SUlJ4dluopWf17nq4tXbl3m1gXS3e12ptajSyrVUWFQoAAABGRCGOikPRy2MdHA2alUkqKBRSTye9t1pbWCs0Mhh4dDm6tFitqne3t7ciIiIQWpwkAAABJklEQVR4Ab3Tg5rDQBSG4bRBbfvfurFR3v9d7Zlaa7wPoi+e4Ugs/oYYdxDn3xDnmJggSjxJJFPp/YqUTkmZ/YoosGtk+UwuzxSKpXKFlEvFai1Pchk+S0Fd4htNptVO8Z1KpcOn2t1ekzT6Un0f9AdgmrlSKl0qpVOlXA/M4OU2GI7GhQmZzkbDpwGG89aCtJpDPA9YwgBvBgc/CGQFUDX9ncDA0LTsNwJnCNkFoNmQMZTvA9s0TU/2D4EVmKZ2GwwNQB6eAwVwhzdBGIHISwArCkJAcb4WDFOArM79YxAA5vAmgFc0zTUiUz4Eprl6eM05ziz9g0/9YbByPgjIvweN+VPHYZ+VMtXNU9WMlKVgy6cz5acyaX7Lkc7uTSLHCPU30fR+BQ0Va3qn48k5AAAAAElFTkSuQmCC">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="config.js"></script> 
     
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; }
-        h1 { color: #4CAF50; margin-bottom: 0.5rem; }
-        textarea { width: 100%; height: 150px; border: 2px solid #ddd; border-radius: 10px; padding: 10px; font-size: 16px; resize: none; box-sizing: border-box; transition: 0.3s; }
-        textarea:focus { border-color: #4CAF50; outline: none; }
-        .btn { background: #4CAF50; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h1 { color: #4CAF50; margin-top: 0; }
+        
+        /* Inputs & Buttons */
+        textarea { width: 100%; height: 120px; border: 2px solid #ddd; border-radius: 10px; padding: 10px; font-size: 16px; resize: none; box-sizing: border-box; transition: 0.3s; margin-bottom: 10px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
+        input[type="text"], input[type="password"] { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        
+        .btn { background: #4CAF50; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn-blue { background-color: #2196F3; margin-top: 10px; }
+
+        /* Divider from your image */
+        .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #888; font-size: 12px; font-weight: bold; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #ddd; }
+        .divider:not(:empty)::before { margin-right: .5em; }
+        .divider:not(:empty)::after { margin-left: .5em; }
+
         #qrcode { margin-top: 20px; display: flex; justify-content: center; }
-        .status { font-size: 12px; color: #888; margin-top: 10px; font-weight: bold; }
+        .status { font-size: 13px; color: #888; margin-top: 15px; font-weight: bold; padding: 8px; border-radius: 5px; background: #f9f9f9; }
+        label { display: block; text-align: left; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h1>QuickClip</h1>
-    <p>Real-time Syncing Clipboard</p>
+    
+    <label>Your Room Content</label>
     <textarea id="box" placeholder="Type here to sync..."></textarea>
-    <button class="btn" onclick="generateNew()">Generate New Room</button>
+
+    <div class="input-group">
+        <div style="flex:1">
+            <label>Room ID</label>
+            <input type="text" id="myRoomId" readonly>
+        </div>
+        <div style="flex:1">
+            <label>Set Password</label>
+            <input type="password" id="myPass" placeholder="Secret" value="1234">
+        </div>
+    </div>
+    
+    <button class="btn" onclick="applySettings()">Update/Lock Room</button>
+
+    <div class="divider"><span>OR RETRIEVE</span></div>
+
+    <input type="text" id="clipId" placeholder="Enter 4-digit code" maxlength="4" style="width: 100%; margin-bottom: 10px; text-align: center; font-size: 18px; letter-spacing: 2px;">
+    <button class="btn btn-blue" id="getBtn" onclick="joinOtherRoom()">Get Content</button>
+
     <div id="qrcode"></div>
-    <div class="status" id="stat">Waiting for connection...</div>
+    <div class="status" id="stat">Initializing...</div>
 </div>
 
 <script>
     const box = document.getElementById('box');
     const stat = document.getElementById('stat');
+    const myRoomIdInput = document.getElementById('myRoomId');
+    const myPassInput = document.getElementById('myPass');
+    const joinInput = document.getElementById('clipId');
+    
     let db;
+    let currentRef = null;
 
-    // 1. Initialize Firebase Safely
+    // 1. Initialize Firebase
     if (typeof firebaseConfig !== 'undefined') {
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         db = firebase.database();
-        console.log("Firebase initialized successfully!");
         
-        // Auto-load room from URL hash if it exists
-        let roomId = window.location.hash.substring(1);
-        if (roomId) {
-            const pass = prompt("Enter the Room Password:");
-            if (pass) {
-                connectToRoom(roomId, pass);
-            } else {
-                stat.innerText = "Access Denied: No Password Provided";
-            }
-        }
+        // AUTO-GENERATE Room ID on load
+        const autoId = Math.floor(1000 + Math.random() * 9000);
+        myRoomIdInput.value = autoId;
+        
+        // Connect to the auto-generated room immediately
+        connectToRoom(autoId, myPassInput.value);
     } else {
-        console.error("config.js failed to load!");
-        stat.innerText = "Error: Config file not found.";
+        stat.innerText = "Config missing!";
     }
 
     function connectToRoom(id, pass) {
-        window.location.hash = id;
-        // The path includes the password for security
-        const ref = db.ref('clips/' + id + '/' + pass);
+        // Stop listening to previous room if exists
+        if (currentRef) currentRef.off();
 
-        // Listen for changes from the database
-        ref.on('value', (snap) => {
+        stat.innerText = "Connecting to " + id + "...";
+        const path = 'clips/' + id + '/' + pass;
+        currentRef = db.ref(path);
+
+        currentRef.on('value', (snap) => {
             const data = snap.val();
             if (data && data.text !== undefined) {
-                if (data.text !== box.value) {
-                    box.value = data.text;
-                }
+                if (data.text !== box.value) box.value = data.text;
                 stat.innerText = "Synced: Room " + id;
                 stat.style.color = "#4CAF50";
             } else {
-                stat.innerText = "Connected: Room " + id + " (Empty)";
-                stat.style.color = "#888";
+                stat.innerText = "Active: Room " + id + " (Empty)";
             }
         });
 
-        // Save to database when typing
         box.oninput = () => {
-            stat.innerText = "Saving...";
-            stat.style.color = "#ff9800";
-            
-            ref.set({ 
-                text: box.value, 
-                time: Date.now() 
-            }).then(() => {
-                stat.innerText = "Synced: Room " + id;
-                stat.style.color = "#4CAF50";
-            }).catch((err) => {
-                stat.innerText = "Security Error! Check rules/password.";
-                console.error("Firebase Error:", err);
-            });
+            stat.innerText = "Syncing...";
+            currentRef.set({ text: box.value, time: Date.now() });
         };
 
-        // Update the QR Code
+        // Update QR
         const qrContainer = document.getElementById('qrcode');
-        if (qrContainer) {
-            qrContainer.innerHTML = "";
-            new QRCode(qrContainer, window.location.href);
-        }
+        qrContainer.innerHTML = "";
+        new QRCode(qrContainer, { text: id.toString(), width: 128, height: 128 });
     }
 
-    function generateNew() {
-        const newId = Math.floor(1000 + Math.random() * 9000);
-        const newPass = prompt("Create a password for this new room:");
-        if (newPass) {
-            connectToRoom(newId, newPass);
+    // Function for when you change your own room password
+    function applySettings() {
+        connectToRoom(myRoomIdInput.value, myPassInput.value);
+        alert("Room " + myRoomIdInput.value + " updated with new password!");
+    }
+
+    // Function to join someone else's room
+    function joinOtherRoom() {
+        const targetId = joinInput.value;
+        if (targetId.length < 4) {
+            alert("Please enter a 4-digit code");
+            return;
+        }
+        const pass = prompt("Enter the password for Room " + targetId + ":");
+        if (pass) {
+            myRoomIdInput.value = targetId;
+            myPassInput.value = pass;
+            connectToRoom(targetId, pass);
         }
     }
 </script>
